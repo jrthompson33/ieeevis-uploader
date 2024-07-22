@@ -15,4 +15,14 @@
     <ProjectReference Include="..\VideoCheckingLib\VideoCheckingLib.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Remove="..\..\config\settings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\config\settings.json" />
+    <EmbeddedResource Include="..\..\config\fileTypes.json" />
+    <EmbeddedResource Include="..\..\config\events.json" />
+  </ItemGroup>
+
 </Project>
