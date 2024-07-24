@@ -19,18 +19,26 @@ RUN apt-get update && \
 RUN apt-get update && \
     apt-get install -y ffmpeg
 
+RUN apt-get install -y curl
+
 # Copy the published application
 COPY . /source
+
+RUN UUID=$(cat /proc/sys/kernel/random/uuid) && \
+    FFMPEG_PATH=$(which ffmpeg) && \
+    FFPROBE_PATH=$(which ffprobe) && \
+    echo '{ "BunnyStorageZoneName": "", "BunnyCdnRootUrl": "", "BunnyAccessKey": "", "BunnyBasePath": "", "BunnyTokenKey": "","BunnyUserApiKey": "", "AuthSignaturePrivateKey": "'$UUID'", "FfprobePath": "'$FFPROBE_PATH'", "FfmpegPath": "'$FFMPEG_PATH'"}' > /source/config/settings.json
 
 # Set the working directory
 WORKDIR /source/IeeeVisUploader/IeeeVisUploaderWebApp
 RUN dotnet publish -c release -o /webapp
 
 # Expose the port your application runs on
-EXPOSE 5103
+EXPOSE 5000
 
 # Set environment variables if necessary (e.g., ASPNETCORE_ENVIRONMENT)
-# ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_URLS=http://+:5000
 
 WORKDIR /webapp
 
