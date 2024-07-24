@@ -208,7 +208,13 @@ The web app needs three configuration files in the folder 'config'.
 ]
 ```
 
+# Run with Docker
 
+To build the docker image using the Dockerfile, run the following command:
+`docker build -t ieee-vis-uploader-webapp . `
+
+To create a docker container:
+`docker run -d -p 5000:5000 --name ieee-vis-uploader-webapp-container ieee-vis-uploader-webapp`
 
 
 # License
