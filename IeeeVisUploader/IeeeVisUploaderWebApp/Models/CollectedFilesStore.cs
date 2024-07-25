@@ -9,6 +9,12 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
+using System.IO;
+using System.Threading.Tasks;
+using Amazon;
+using Amazon.S3;
+using Amazon.S3.Model;
+
 namespace IeeeVisUploaderWebApp.Models
 {
     public class CollectedFilesStore
@@ -22,6 +28,37 @@ namespace IeeeVisUploaderWebApp.Models
         private long _version;
         private bool _savingFailed;
 
+        // TODO: load these from settings.json
+        private const string awsS3BucketName = "your-bucket-name";
+        private const string awsS3accessKey = "your-access-key";
+        private const string awsS3secretKey = "your-secret-key";
+        private static readonly RegionEndpoint awsS3BucketRegion = RegionEndpoint.USEast1; // Change to your region
+
+        private async Task UploadFileToS3(string keyName, string filePath)
+        {
+            var s3Client = new AmazonS3Client(awsS3accessKey, awsS3secretKey, awsS3BucketRegion);
+
+            try
+            {
+                var putRequest = new PutObjectRequest
+                {
+                    BucketName = awsS3BucketName,
+                    Key = keyName,
+                    FilePath = filePath,
+                    ContentType = "text/plain"
+                };
+
+                PutObjectResponse response = await s3Client.PutObjectAsync(putRequest);
+            }
+            catch (AmazonS3Exception e)
+            {
+                Console.WriteLine("Error encountered on server. Message:'{0}' when writing an object", e.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unknown encountered on server. Message:'{0}' when writing an object", e.Message);
+            }
+        }
 
         public CollectedFilesStore(string fileName)
         {
@@ -194,11 +231,19 @@ namespace IeeeVisUploaderWebApp.Models
                 File.WriteAllLines(tmpFn,
                     files.Select(f => JsonSerializer.Serialize(f, JsonSerializerOptions.Default)));
 
+                // string[] lines = File.ReadAllLines(tmpFn);
+                // Console.WriteLine("Contents of the file:");
+                // foreach (string line in lines)
+                // {
+                //     Console.WriteLine(line);
+                // }
+                //  Console.WriteLine("====== End of file contents =======");
 
                 lock (_lck)
                 {
                     if (_version == version)
-                    {
+                    {   
+                        UploadFileToS3(_fileName, tmpFn).Wait();
                         File.Move(tmpFn, _fileName, true);
                         _savingFailed = false;
                     }
@@ -226,5 +271,6 @@ namespace IeeeVisUploaderWebApp.Models
             }
 
         }
+
     }
 }
