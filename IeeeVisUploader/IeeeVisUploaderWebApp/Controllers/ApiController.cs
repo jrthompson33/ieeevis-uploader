@@ -46,7 +46,7 @@ namespace IeeeVisUploaderWebApp.Controllers
             _logger = logger;
             _httpClient = new HttpClient();
             _httpClient.Timeout = new TimeSpan(0, 0, 120);
-            
+
             _generalBunnyClient = new HttpClient();
             _generalBunnyClient.Timeout = new TimeSpan(0, 0, 120);
             _generalBunnyClient.DefaultRequestHeaders.Add("AccessKey", DataProvider.Settings.BunnyUserApiKey ?? "");
@@ -84,24 +84,17 @@ namespace IeeeVisUploaderWebApp.Controllers
 
             var rootPath =
                 $"/{DataProvider.Settings.BunnyStorageZoneName}/{DataProvider.Settings.BunnyBasePath.Trim('/')}/";
-            string path;
-            var isEvent = uid.IndexOf('_') == -1;
-            if (isEvent)
-            {
-                path = $"{rootPath}{uid}/";
-            }
-            else
-            {
-                rootPath += HelperMethods.GetEventFromUid(uid) + "/";
-                path = $"{rootPath}{uid}/";
-            }
+            rootPath += HelperMethods.GetEventFromUid(uid) + "/";
+            var path = $"{rootPath}{uid}/";
 
             _logger.LogInformation($"{uid} folder download requested");
+
+            // Download files from the resp
             var reqBody = new { RootPath = path, Paths = new[] { path } };
             var resp = await _httpClient.PostAsJsonAsync(_downloadFolderUrl, reqBody, HttpContext.RequestAborted);
             if (HttpContext.RequestAborted.IsCancellationRequested)
                 return;
-            await HttpContext.ProxyForwardHttpResponse(resp, new []{ ("content-disposition", $"attachment; filename={uid}.zip") });
+            await HttpContext.ProxyForwardHttpResponse(resp, new[] { ("content-disposition", $"attachment; filename={uid}.zip") });
         }
 
 
@@ -138,9 +131,9 @@ namespace IeeeVisUploaderWebApp.Controllers
             {
                 return new BadRequestResult();
             }
-            
+
             HelperMethods.EnsureCollectedFiles(uid);
-            
+
             var previewItemTypes = new[] { "video-ff", "video-ff-subs" };
             var previewItemTypesS = string.Join('|', previewItemTypes);
             var uploadAuth = _signer.GetUrlAuth("upload", uid);
@@ -183,23 +176,23 @@ namespace IeeeVisUploaderWebApp.Controllers
             {
                 uid = t.uid,
                 items = t.files
-                    .Where(it => ft == null || 
+                    .Where(it => ft == null ||
                                  ft.Any(s => s.Equals(it.FileTypeId, StringComparison.Ordinal)))
                     .Select(it => new
-                {
-                    name = it.Name,
-                    fileName = it.FileName,
-                    isPresent = it.IsPresent,
-                    fileSize = it.FileSize,
-                    checksum = it.Checksum,
-                    lastUploaded = it.LastUploaded?.ToString("u"),
-                    lastChecked = it.LastChecked?.ToString("u"),
-                    url = it.DownloadUrl,
-                    numErrors = it.Errors?.Count ?? 0,
-                    numWarnings = it.Warnings?.Count ?? 0,
-                    errors = it.Errors ?? new(),
-                    warnings = it.Warnings ?? new(),
-                })
+                    {
+                        name = it.Name,
+                        fileName = it.FileName,
+                        isPresent = it.IsPresent,
+                        fileSize = it.FileSize,
+                        checksum = it.Checksum,
+                        lastUploaded = it.LastUploaded?.ToString("u"),
+                        lastChecked = it.LastChecked?.ToString("u"),
+                        url = it.DownloadUrl,
+                        numErrors = it.Errors?.Count ?? 0,
+                        numWarnings = it.Warnings?.Count ?? 0,
+                        errors = it.Errors ?? new(),
+                        warnings = it.Warnings ?? new(),
+                    })
             }).ToArray();
             return Json(res);
         }
@@ -237,7 +230,7 @@ namespace IeeeVisUploaderWebApp.Controllers
             {
                 return new BadRequestResult();
             }
-            
+
             var lckKey = uid + itemId;
             lock (CurrentlyProcessing)
             {
@@ -256,7 +249,7 @@ namespace IeeeVisUploaderWebApp.Controllers
                 {
                     return Fail("internal error");
                 }
-                if(!await DeleteFile(collF))
+                if (!await DeleteFile(collF))
                     return Fail("delete was not successful");
                 _logger.LogInformation($"{uid} file upload for {itemId} deleted");
                 return Json(new { statusCode = 200 });
@@ -310,7 +303,7 @@ namespace IeeeVisUploaderWebApp.Controllers
             {
                 var reader = new MultipartReader(mediaTypeHeader.Boundary.Value, request.Body);
                 var section = await reader.ReadNextSectionAsync();
-                
+
                 while (section != null)
                 {
                     var hasContentDispositionHeader = ContentDispositionHeaderValue.TryParse(section.ContentDisposition,
