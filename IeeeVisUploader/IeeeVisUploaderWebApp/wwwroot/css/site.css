@@ -31,7 +31,7 @@ body {
 }
 
 .navbar .h4 {
-    color: rgb(127, 85, 28);
+    color: #ffffff;
 }
     
 
@@ -42,7 +42,7 @@ body {
 }
 
 .bg-navbar {
-    background-color: rgb(238, 222, 201);
+    background-color: #3F657F;
 }
 
 .errors-heading,
