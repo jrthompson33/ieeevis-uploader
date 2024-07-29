@@ -18,6 +18,9 @@ namespace IeeeVisUploaderWebApp.Models
         public string AuthSignaturePrivateKey { get; set; }
         public string FfprobePath { get; set; }
         public string FfmpegPath { get; set; }
-
+        public string AwsS3AccessKey { get; set; }
+        public string AwsS3SecretKey { get; set; }
+        public string AwsS3BucketName { get; set; }
+        public string AwsS3Region { get; set; }
     }
 }
