@@ -3,7 +3,7 @@
 # Load the .env file
 export $(grep -v '^#' .env | xargs)
 
-Build the Docker image with the secret keys as build arguments
+#Build the Docker image with the secret keys as build arguments
 docker build \
   --build-arg BunnyStorageZoneName=$BunnyStorageZoneName \
   --build-arg BunnyCdnRootUrl=$BunnyCdnRootUrl \
