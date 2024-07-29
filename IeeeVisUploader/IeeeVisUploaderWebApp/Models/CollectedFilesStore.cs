@@ -5,15 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+
+using System;
+using System.IO;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text.Json;
 
-using System.IO;
-using System.Threading.Tasks;
 using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
+
+using IeeeVisUploaderWebApp.Helpers;
 
 namespace IeeeVisUploaderWebApp.Models
 {
@@ -28,22 +33,17 @@ namespace IeeeVisUploaderWebApp.Models
         private long _version;
         private bool _savingFailed;
 
-        // TODO: load these from settings.json
-        private const string awsS3BucketName = "your-bucket-name";
-        private const string awsS3accessKey = "your-access-key";
-        private const string awsS3secretKey = "your-secret-key";
-        private static readonly RegionEndpoint awsS3BucketRegion = RegionEndpoint.USEast1; // Change to your region
 
         private async Task UploadFileToS3(string keyName, string filePath)
         {
-            var s3Client = new AmazonS3Client(awsS3accessKey, awsS3secretKey, awsS3BucketRegion);
 
+            var s3Client = new AmazonS3Client(DataProvider.Settings.AwsS3AccessKey, DataProvider.Settings.AwsS3SecretKey, RegionEndpoint.GetBySystemName(DataProvider.Settings.AwsS3Region));
             try
             {
                 var putRequest = new PutObjectRequest
                 {
-                    BucketName = awsS3BucketName,
-                    Key = keyName,
+                    BucketName = DataProvider.Settings.AwsS3BucketName,
+                    Key = $"collected_files/{DataProvider.Settings.BunnyBasePath}/collectedFiles.json",
                     FilePath = filePath,
                     ContentType = "text/plain"
                 };
@@ -52,13 +52,42 @@ namespace IeeeVisUploaderWebApp.Models
             }
             catch (AmazonS3Exception e)
             {
-                Console.WriteLine("Error encountered on server. Message:'{0}' when writing an object", e.Message);
+                Console.WriteLine("Error encountered on server. Message:'{0}'", e.Message);
             }
             catch (Exception e)
             {
-                Console.WriteLine("Unknown encountered on server. Message:'{0}' when writing an object", e.Message);
+                Console.WriteLine("Unknown encountered on server. Message:'{0}'", e.Message);
             }
         }
+
+         private async Task UploadStringContentAsFileToS3(string keyName, string content)
+        {
+
+            var s3Client = new AmazonS3Client(DataProvider.Settings.AwsS3AccessKey, DataProvider.Settings.AwsS3SecretKey, RegionEndpoint.USWest2);
+            try
+            {
+                using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(content)))
+                {
+                    var putRequest = new PutObjectRequest
+                    {
+                        BucketName = DataProvider.Settings.AwsS3BucketName,
+                        Key = $"collected_files/{DataProvider.Settings.BunnyBasePath}/{keyName}.json",
+                        InputStream = ms,
+                        ContentType = "text/plain"
+                    };
+
+                    PutObjectResponse response = await s3Client.PutObjectAsync(putRequest);
+                }
+            }
+            catch (AmazonS3Exception e)
+            {
+                Console.WriteLine("Error encountered on server. Message:'{0}'", e.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unknown encountered on server. Message:'{0}'", e.Message);
+            }
+        }       
 
         public CollectedFilesStore(string fileName)
         {
@@ -166,6 +195,18 @@ namespace IeeeVisUploaderWebApp.Models
                 }
                 if (!updated)
                     list.Add(f);
+
+
+                StringBuilder combinedSerializedStrings = new StringBuilder();
+                foreach (CollectedFile fileItem in list)
+                {
+                    combinedSerializedStrings.Append(JsonSerializer.Serialize(fileItem, JsonSerializerOptions.Default));
+                    combinedSerializedStrings.Append(",\n");
+                }
+                string combinedString = combinedSerializedStrings.ToString();
+
+                UploadStringContentAsFileToS3(f.ParentUid, combinedString).Wait();
+
             }
         }
 
@@ -196,6 +237,7 @@ namespace IeeeVisUploaderWebApp.Models
         public void SetFiles(string uid, List<CollectedFile> files)
         {
             files = files.Select(f => f.Clone()).ToList();
+
             lock (_lck)
             {
                 _filesPerPaper[uid] = files;
@@ -231,19 +273,12 @@ namespace IeeeVisUploaderWebApp.Models
                 File.WriteAllLines(tmpFn,
                     files.Select(f => JsonSerializer.Serialize(f, JsonSerializerOptions.Default)));
 
-                // string[] lines = File.ReadAllLines(tmpFn);
-                // Console.WriteLine("Contents of the file:");
-                // foreach (string line in lines)
-                // {
-                //     Console.WriteLine(line);
-                // }
-                //  Console.WriteLine("====== End of file contents =======");
 
                 lock (_lck)
                 {
                     if (_version == version)
                     {   
-                        UploadFileToS3(_fileName, tmpFn).Wait();
+                        // UploadFileToS3(_fileName, tmpFn).Wait(); // Upload the entire collectedFiles.json to S3
                         File.Move(tmpFn, _fileName, true);
                         _savingFailed = false;
                     }

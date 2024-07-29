@@ -24,10 +24,33 @@ RUN apt-get install -y curl
 # Copy the published application
 COPY . /source
 
-RUN UUID=$(cat /proc/sys/kernel/random/uuid) && \
-    FFMPEG_PATH=$(which ffmpeg) && \
+ARG BunnyStorageZoneName
+ARG BunnyCdnRootUrl
+ARG BunnyAccessKey
+ARG BunnyBasePath
+ARG BunnyTokenKey
+ARG BunnyUserApiKey
+ARG AuthSignaturePrivateKey
+ARG AwsS3AccessKey
+ARG AwsS3SecretKey
+ARG AwsS3BucketName
+ARG AwsS3Region
+
+RUN FFMPEG_PATH=$(which ffmpeg) && \
     FFPROBE_PATH=$(which ffprobe) && \
-    echo '{ "BunnyStorageZoneName": "", "BunnyCdnRootUrl": "", "BunnyAccessKey": "", "BunnyBasePath": "", "BunnyTokenKey": "","BunnyUserApiKey": "", "AuthSignaturePrivateKey": "'$UUID'", "FfprobePath": "'$FFPROBE_PATH'", "FfmpegPath": "'$FFMPEG_PATH'"}' > /source/config/settings.json
+    echo '{ "BunnyStorageZoneName": "'${BunnyStorageZoneName}'", \
+        "BunnyCdnRootUrl": "'${BunnyCdnRootUrl}'", \
+        "BunnyAccessKey": "'${BunnyAccessKey}'", \
+        "BunnyBasePath": "'${BunnyBasePath}'", \
+        "BunnyTokenKey": "'${BunnyTokenKey}'", \
+        "BunnyUserApiKey": "'${BunnyUserApiKey}'", \
+        "AuthSignaturePrivateKey": "'${AuthSignaturePrivateKey}'", \
+        "FfprobePath": "'$FFPROBE_PATH'", \
+        "FfmpegPath": "'$FFMPEG_PATH'", \ 
+        "AwsS3AccessKey": "'${AwsS3AccessKey}'", \
+        "AwsS3SecretKey": "'${AwsS3SecretKey}'", \
+        "AwsS3BucketName": "'${AwsS3BucketName}'", \
+        "AwsS3Region": "'${AwsS3Region}'"}' >  /source/config/settings.json
 
 # Set the working directory
 WORKDIR /source/IeeeVisUploader/IeeeVisUploaderWebApp
