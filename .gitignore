@@ -399,3 +399,4 @@ FodyWeavers.xsd
 
 # Project Secret keys
 config/settings.json
+.env
