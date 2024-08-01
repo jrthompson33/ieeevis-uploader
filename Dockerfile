@@ -57,11 +57,11 @@ WORKDIR /source/IeeeVisUploader/IeeeVisUploaderWebApp
 RUN dotnet publish -c release -o /webapp
 
 # Expose the port your application runs on
-EXPOSE 5000
+EXPOSE 5001
 
 # Set environment variables if necessary (e.g., ASPNETCORE_ENVIRONMENT)
 ENV ASPNETCORE_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://+:5000
+ENV ASPNETCORE_URLS=http://+:5001
 
 WORKDIR /webapp
 
