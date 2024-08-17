@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+using System.Threading.Tasks.Dataflow;
 using IeeeVisUploaderWebApp.Models;
 
 namespace IeeeVisUploaderWebApp.Helpers
@@ -15,7 +16,7 @@ namespace IeeeVisUploaderWebApp.Helpers
         {
             if (string.IsNullOrEmpty(uid))
                 return "";
-            var idx = uid.LastIndexOfAny(new []{'_', '-'});
+            var idx = uid.LastIndexOfAny(new[] { '_', '-' });
             if (idx == -1)
                 return "";
             return uid.Substring(0, idx);
@@ -50,7 +51,7 @@ namespace IeeeVisUploaderWebApp.Helpers
                 return files;
 
             //check validity / format of uid
-            if(!IsPaperUid(uid))
+            if (!IsPaperUid(uid))
                 return files;
 
             if (!DataProvider.Events.TryGetValue(GetEventFromUid(uid, out var typePrefix),
@@ -63,7 +64,7 @@ namespace IeeeVisUploaderWebApp.Helpers
             foreach (var typeId in eventItem.FilesToCollect)
             {
                 var ftd = DataProvider.FileTypes[typeId];
-                files.Add(new CollectedFile(uid, typeId, ftd.Name ?? ""));
+                files.Add(new CollectedFile(uid, typeId, ftd.Name ?? "", ftd.IsOptional));
             }
             DataProvider.CollectedFiles.SetFiles(uid, files);
             DataProvider.CollectedFiles.Save();

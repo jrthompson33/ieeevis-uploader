@@ -8,21 +8,23 @@ namespace IeeeVisUploaderWebApp.Models
 {
     public class CollectedFile
     {
-        public CollectedFile(string parentUid, string fileTypeId, string name)
+        public CollectedFile(string parentUid, string fileTypeId, string name, bool isOptional)
         {
             ParentUid = parentUid;
             FileTypeId = fileTypeId;
             Name = name;
+            IsOptional = isOptional;
         }
 
         public string ParentUid { get; set; }
         public bool IsPresent { get; set; }
+        public bool IsOptional { get; set; }
         public string FileTypeId { get; set; }
         public string Name { get; set; }
         public string? FileName { get; set; }
         public long FileSize { get; set; }
         public string? DownloadUrl { get; set; }
-        public string? Checksum { get;set; }
+        public string? Checksum { get; set; }
         public List<string>? Errors { get; set; }
         public List<string>? Warnings { get; set; }
         public DateTime? LastUploaded { get; set; }
@@ -32,7 +34,7 @@ namespace IeeeVisUploaderWebApp.Models
 
         public CollectedFile Clone()
         {
-            return new CollectedFile(ParentUid, FileTypeId, Name)
+            return new CollectedFile(ParentUid, FileTypeId, Name, IsOptional)
             {
                 FileName = FileName,
                 FileSize = FileSize,

@@ -7,5 +7,32 @@
             "image",
             "image-caption"
         ]
+    },
+    {
+        "EventId": "a",
+        "FilesToCollect": [
+            "video-ff-optional",
+            "video-ff-subs-optional",
+            "image",
+            "image-caption"
+        ]
+    },
+    {
+        "EventId": "s",
+        "FilesToCollect": [
+            "video-ff-optional",
+            "video-ff-subs-optional",
+            "image",
+            "image-caption"
+        ]
+    },
+    {
+        "EventId": "w",
+        "FilesToCollect": [
+            "video-ff-optional",
+            "video-ff-subs-optional",
+            "image",
+            "image-caption"
+        ]
     }
 ]

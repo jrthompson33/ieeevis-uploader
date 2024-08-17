@@ -361,7 +361,7 @@ namespace IeeeVisUploaderWebApp.Controllers
                             }
 
 
-                            collF = new CollectedFile(uid, fileTypeDesc.Id, fileTypeDesc.Name ?? "")
+                            collF = new CollectedFile(uid, fileTypeDesc.Id, fileTypeDesc.Name ?? "", fileTypeDesc.IsOptional)
                             {
                                 FileName = targetFn,
                                 IsPresent = true,
