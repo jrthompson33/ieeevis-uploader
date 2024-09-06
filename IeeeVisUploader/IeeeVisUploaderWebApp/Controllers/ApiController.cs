@@ -117,7 +117,7 @@ namespace IeeeVisUploaderWebApp.Controllers
             collF.LastChecked = null;
 
             DataProvider.CollectedFiles.InsertOrUpdate(collF);
-            DataProvider.CollectedFiles.Save();
+            // DataProvider.CollectedFiles.Save();
             return true;
         }
 
@@ -213,7 +213,7 @@ namespace IeeeVisUploaderWebApp.Controllers
             {
                 DataProvider.CollectedFiles.DeleteUid(uid);
             }
-            DataProvider.CollectedFiles.Save();
+            // DataProvider.CollectedFiles.Save();
             return Json(new { statusCode = 200 });
         }
 
@@ -413,7 +413,7 @@ namespace IeeeVisUploaderWebApp.Controllers
                             }
 
                             DataProvider.CollectedFiles.InsertOrUpdate(collF);
-                            DataProvider.CollectedFiles.Save();
+                            // DataProvider.CollectedFiles.Save();
                             collF.DownloadUrl =
                                 _signer.SignBunnyUrl(collF.RawDownloadUrl, DateTimeOffset.UtcNow.AddHours(1));
                         }

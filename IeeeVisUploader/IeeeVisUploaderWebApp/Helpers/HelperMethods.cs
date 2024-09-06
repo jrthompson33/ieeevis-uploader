@@ -67,7 +67,7 @@ namespace IeeeVisUploaderWebApp.Helpers
                 files.Add(new CollectedFile(uid, typeId, ftd.Name ?? "", ftd.IsOptional));
             }
             DataProvider.CollectedFiles.SetFiles(uid, files);
-            DataProvider.CollectedFiles.Save();
+            // DataProvider.CollectedFiles.Save();
             return files;
 
         }

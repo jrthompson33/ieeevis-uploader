@@ -309,7 +309,7 @@ namespace IeeeVisUploaderWebApp.Helpers
             {
                 // Might need to fix this too
                 var fn = Path.Combine(ConfigPath, "collectedFiles.json");
-                CollectedFiles = new(fn);
+                CollectedFiles = new CollectedFilesStore();
             }
         }
 
