@@ -82,10 +82,15 @@ namespace IeeeVisUploaderWebApp.Controllers
                 return;
             }
 
-            var rootPath =
+            var path =
                 $"/{DataProvider.Settings.BunnyStorageZoneName}/{DataProvider.Settings.BunnyBasePath.Trim('/')}/";
-            rootPath += HelperMethods.GetEventFromUid(uid) + "/";
-            var path = $"{rootPath}{uid}/";
+            var eventId = HelperMethods.GetEventFromUid(uid);
+            path += eventId + "/";
+            // In the case requesting download all for event, only need eventId, don't add uid
+            if (eventId != uid)
+            {
+                path += uid + "/";
+            }
 
             _logger.LogInformation($"{uid} folder download requested");
 

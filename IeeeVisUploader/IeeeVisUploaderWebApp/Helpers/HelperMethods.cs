@@ -16,9 +16,12 @@ namespace IeeeVisUploaderWebApp.Helpers
         {
             if (string.IsNullOrEmpty(uid))
                 return "";
+            var count = uid.Count(c => c == '_' || c == '-');
             var idx = uid.LastIndexOfAny(new[] { '_', '-' });
             if (idx == -1)
                 return "";
+            if (count == 1)
+                return uid; // this is the event name, expect v-event-### format
             return uid.Substring(0, idx);
 
         }
